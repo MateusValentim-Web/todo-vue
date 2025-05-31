@@ -1,20 +1,23 @@
 <script setup>
-    const props = defineProps(['tarefas']);
+    const props = defineProps(['cadastraTarefa', 'tarefaTemp', 'trocarFiltro', 'editaTarefaTemp'])
 </script>
 
 <template>
-    <ul class="list-group mt-4">
-            <li class="list-group-item" v-for="tarefa in props.tarefas">
-                <input @change="evento => tarefa.finalizada = evento.target.checked" :checked="tarefa.finalizada" :id="tarefa.titulo" type="checkbox">
-                <label :class="{done: tarefa.finalizada === true}" class="ms-3" :for="tarefa.titulo">
-                    {{ tarefa.titulo }}
-                </label>
-            </li>
-        </ul>
-</template>
-
-<style scoped>
-    .done {
-        text-decoration: line-through;
-    }
-</style>
+    <form @submit.prevent="props.cadastraTarefa">
+            <div class="row">
+                <div class="col">
+                    <input :value="props.tarefaTemp" @change="props.editaTarefaTemp" required type="text" placeholder="Digite aqui a descrção da tarefa" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary">Cadastrar</button>
+                </div>
+                <div class="col-md-2">
+                    <select @change="props.trocarFiltro" class="form-control">
+                        <option value="todas">Todas tarefas</option>
+                        <option value="pendentes">Pendentes</option>
+                        <option value="finalizadas">Finalizadas</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+        </template>

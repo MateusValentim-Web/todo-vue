@@ -1,65 +1,94 @@
 <script setup>
-    import { reactive } from 'vue';
-    import Cabecalho from './components/Cabecalho.vue';
-    import Formulario from './components/Formulario.vue';
-    import ListadeTarefas from './components/ListadeTarefas.vue';
-    const estado = reactive ({
-        Filtro: 'todas',
-        tarefaTemp: '',
-        tarefas: [
-            {
-                titulo: 'Estudar ES6',
-                finalizada: false,
-            },
-            {
-                titulo: 'Estudar SASS',
-                finalizada: false,
-            },
-            {
-                titulo: 'Ir para a academia',
-                finalizada: true,
-            }
-        ]
-    })
+import { reactive, computed, watch } from 'vue'
+import Cabecalho from './components/Cabecalho.vue'
+import Formulario from './components/Formulario.vue'
+import ListaDeCompras from './components/ListaDeCompras.vue'
 
-    const getTarefasPendentes = () => {
-        return  estado.tarefas.filter(tarefa => !tarefa.finalizada)
-    }
+const estado = reactive({
+  filtro: 'todas',
+  itemTemp: '',
+  precoTemp: '',
+  itens: []
+})
 
-    const getTarefasFinalizadas = () => {
-        return  estado.tarefas.filter(tarefa => tarefa.finalizada)
-    }
+// Carregar itens salvos do localStorage ao iniciar
+const itensSalvos = localStorage.getItem('lista-de-compras')
+if (itensSalvos) {
+  try {
+    estado.itens = JSON.parse(itensSalvos)
+  } catch (e) {
+    console.error('Erro ao ler lista do localStorage:', e)
+  }
+}
 
-    const getTarefasFiltradas = () => {
-    const { filtro } = estado;
+const itensFiltrados = computed(() => {
+  switch (estado.filtro) {
+    case 'comprados':
+      return estado.itens.filter(item => item.comprado)
+    case 'pendentes':
+      return estado.itens.filter(item => !item.comprado)
+    default:
+      return estado.itens
+  }
+})
 
-    switch (filtro) {
-        case 'pendentes': 
-        return getTarefasPendentes();
-        case 'finalizadas':
-            return getTarefasFinalizadas();
-            default:
-                return estado.tarefas;
-    }
+const totalComprado = computed(() => {
+  return estado.itens
+    .filter(item => item.comprado)
+    .reduce((soma, item) => soma + item.preco, 0)
+})
 
-    }
+function cadastraItem() {
+  if (!estado.itemTemp || !estado.precoTemp) return
 
-    const cadastraTarefa = () => {
-        const tarefaNova = {
-            titulo: estado.tarefaTemp,
-            finalizada: false,
-        }
-        estado.tarefas.push(tarefaNova);
-        estado.tarefaTemp ='';
-    }
+  const novoItem = {
+    id: Date.now(),
+    nome: estado.itemTemp,
+    preco: parseFloat(estado.precoTemp),
+    comprado: false,
+  }
+  estado.itens.push(novoItem)
+  estado.itemTemp = ''
+  estado.precoTemp = ''
+}
+
+function trocarFiltro(evento) {
+  estado.filtro = evento.target.value
+}
+
+function editaItemTemp(evento) {
+  estado.itemTemp = evento.target.value
+}
+
+function editaPrecoTemp(evento) {
+  estado.precoTemp = evento.target.value
+}
+
+function removeItem(index) {
+  estado.itens.splice(index, 1)
+}
+
+// Sempre que o array de itens mudar, salva no localStorage
+watch(() => estado.itens, (novoValor) => {
+  localStorage.setItem('lista-de-compras', JSON.stringify(novoValor))
+}, { deep: true })
+
 </script>
 
 <template>
-    <div class="container">
-    <Cabecalho :tarefas-pendentes="getTarefasPendentes().length"/>
-    <Formulario :trocar-filtro="evento => estado.filtro = evento.target.value" :tarefa-temp="estado.tarefaTemp" :edita-tarefa-temp="evento => estado.tarefaTemp = evento.target.value" :cadastra-tarefa="cadastraTarefa"/>
-    <ListadeTarefas :tarefas="getTarefasFiltradas()"/>
-    </div>
+  <div class="container mt-5">
+    <Cabecalho :total-comprado="totalComprado" />
+    <Formulario 
+      :item-temp="estado.itemTemp" 
+      :preco-temp="estado.precoTemp"
+      :trocar-filtro="trocarFiltro"
+      :edita-item-temp="editaItemTemp"
+      :edita-preco-temp="editaPrecoTemp"
+      :cadastra-item="cadastraItem"
+    />
+    <ListaDeCompras 
+      :itens="itensFiltrados" 
+      :remove-item="removeItem" 
+    />
+  </div>
 </template>
-
-

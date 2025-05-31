@@ -1,12 +1,10 @@
 <script setup>
-const props = defineProps(['tarefasPendentes'])
+const props = defineProps(['totalComprado'])
 </script>
 
 <template>
-    <header class="p-5 mb-4 mt-4 bg-light rounded-3">
-            <h1>Minhas tarefas</h1>
-            <p>
-                Você possui {{ props.tarefasPendentes }} tarefas pendentes
-            </p>
-        </header>
+  <header class="p-3 mb-4 bg-light rounded-3">
+    <h1>Lista de Compras</h1>
+    <p>Total de Compras: R$ {{ props.totalComprado.toFixed(2) }}</p>
+  </header>
 </template>

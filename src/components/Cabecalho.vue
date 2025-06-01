@@ -5,6 +5,6 @@ const props = defineProps(['totalComprado'])
 <template>
   <header class="p-3 mb-4 bg-light rounded-3">
     <h1>Lista de Compras</h1>
-    <p>Total de Compras: R$ {{ props.totalComprado.toFixed(2) }}</p>
+    <p>Total de Compras: R$ {{ totalComprado.toFixed(2) }}</p>
   </header>
 </template>

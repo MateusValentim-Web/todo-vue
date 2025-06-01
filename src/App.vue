@@ -35,7 +35,7 @@ const itensFiltrados = computed(() => {
 const totalComprado = computed(() => {
   return estado.itens
     .filter(item => item.comprado)
-    .reduce((soma, item) => soma + item.preco, 0)
+    .reduce((soma, item) => soma + item.preco * (item.quantidade || 1), 0)
 })
 
 function cadastraItem() {
@@ -46,6 +46,7 @@ function cadastraItem() {
     nome: estado.itemTemp,
     preco: parseFloat(estado.precoTemp),
     comprado: false,
+    quantidade: 1 // inicia com 1
   }
   estado.itens.push(novoItem)
   estado.itemTemp = ''
@@ -68,11 +69,20 @@ function removeItem(index) {
   estado.itens.splice(index, 1)
 }
 
-// Sempre que o array de itens mudar, salva no localStorage
+function incrementarQuantidade(itemId) {
+  const item = estado.itens.find(i => i.id === itemId)
+  if (item) item.quantidade = (item.quantidade || 1) + 1
+}
+
+function decrementarQuantidade(itemId) {
+  const item = estado.itens.find(i => i.id === itemId)
+  if (item && item.quantidade > 1) item.quantidade -= 1
+}
+
+// Salvar itens no localStorage sempre que mudarem
 watch(() => estado.itens, (novoValor) => {
   localStorage.setItem('lista-de-compras', JSON.stringify(novoValor))
 }, { deep: true })
-
 </script>
 
 <template>
@@ -88,7 +98,9 @@ watch(() => estado.itens, (novoValor) => {
     />
     <ListaDeCompras 
       :itens="itensFiltrados" 
-      :remove-item="removeItem" 
+      :remove-item="removeItem"
+      :incrementar-quantidade="incrementarQuantidade"
+      :decrementar-quantidade="decrementarQuantidade"
     />
   </div>
 </template>

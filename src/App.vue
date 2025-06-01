@@ -79,6 +79,15 @@ function decrementarQuantidade(itemId) {
   if (item && item.quantidade > 1) item.quantidade -= 1
 }
 
+// NOVA FUNÇÃO para atualizar quantidade pelo input editável
+function atualizarQuantidade(itemId, novaQuantidade) {
+  const item = estado.itens.find(i => i.id === itemId);
+  if (item) {
+    const quantidadeValida = Math.max(1, Math.floor(novaQuantidade) || 1);
+    item.quantidade = quantidadeValida;
+  }
+}
+
 // Salvar itens no localStorage sempre que mudarem
 watch(() => estado.itens, (novoValor) => {
   localStorage.setItem('lista-de-compras', JSON.stringify(novoValor))
@@ -101,6 +110,7 @@ watch(() => estado.itens, (novoValor) => {
       :remove-item="removeItem"
       :incrementar-quantidade="incrementarQuantidade"
       :decrementar-quantidade="decrementarQuantidade"
+      :atualizar-quantidade="atualizarQuantidade"
     />
   </div>
 </template>

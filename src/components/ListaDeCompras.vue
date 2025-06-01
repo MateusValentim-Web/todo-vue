@@ -3,7 +3,8 @@ const props = defineProps({
   itens: Array,
   removeItem: Function,
   incrementarQuantidade: Function,
-  decrementarQuantidade: Function
+  decrementarQuantidade: Function,
+  atualizarQuantidade: Function
 });
 </script>
 
@@ -22,7 +23,13 @@ const props = defineProps({
         
         <div class="quantity-controls ms-3">
           <button @click="() => props.decrementarQuantidade(item.id)" class="btn btn-sm btn-secondary">-</button>
-          <input type="number" :value="item.quantidade" readonly class="quantity-input" />
+          <input 
+            type="number" 
+            :value="item.quantidade" 
+            @input="event => props.atualizarQuantidade(item.id, Number(event.target.value))"
+            class="quantity-input" 
+            min="1"
+          />
           <button @click="() => props.incrementarQuantidade(item.id)" class="btn btn-sm btn-secondary">+</button>
         </div>
       </div>
@@ -48,5 +55,17 @@ const props = defineProps({
   width: 40px;
   text-align: center;
   padding: 2px;
+}
+
+/* Remover setinhas padrão do input number (Chrome, Edge, Safari) */
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remover setinhas padrão no Firefox */
+.quantity-input {
+  -moz-appearance: textfield;
 }
 </style>
